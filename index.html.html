@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Show do Milhão — Bioquímica</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#f5c518;--gold2:#ff9800;
+  --blue:#1565c0;--blue2:#1e88e5;
+  --bg:#07071f;
+  --green:#4caf50;--red:#f44336;--safe:#2196f3;
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#fff;overflow-x:hidden}
+body{background:radial-gradient(ellipse at top,#0d1b4b 0%,#07071f 65%);min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;width:100%;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn .35s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── START ── */
+.logo{text-align:center;margin-bottom:36px}
+.logo-icon{font-size:3.8rem;display:block;margin-bottom:12px;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.logo-title{font-size:clamp(2rem,8vw,3.2rem);font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,#f5c518,#ff9800,#f5c518);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 18px rgba(245,197,24,.5))}
+.logo-sub{font-size:clamp(.9rem,3.5vw,1.2rem);color:#90caf9;letter-spacing:4px;margin-top:6px;text-transform:uppercase}
+
+.start-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:32px;width:100%;max-width:440px;backdrop-filter:blur(10px)}
+.start-card label{display:block;font-size:.9rem;color:#90caf9;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase}
+.start-card input{width:100%;padding:14px 18px;font-size:1.1rem;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:12px;color:#fff;outline:none;transition:border-color .2s;margin-bottom:20px}
+.start-card input:focus{border-color:var(--gold)}
+.start-card input::placeholder{color:rgba(255,255,255,.3)}
+.btn-start{width:100%;padding:16px;font-size:1.1rem;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#f5c518,#ff9800);color:#000;border:none;border-radius:12px;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(245,197,24,.4)}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(245,197,24,.6)}
+.btn-start:active{transform:translateY(0)}
+
+/* ── GAME ── */
+.game-layout{width:100%;max-width:680px;display:flex;flex-direction:column;gap:14px;padding:16px;min-height:100vh;justify-content:center}
+.game-header{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.player-info{font-size:.9rem;color:#90caf9}
+.player-info strong{color:var(--gold);font-size:1.05rem}
+.prize-header{text-align:right}
+.prize-header .lbl{font-size:.7rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px}
+.prize-header .amt{font-size:1.25rem;font-weight:700;color:var(--gold)}
+.safe-info{font-size:.7rem;color:#64b5f6;margin-top:2px}
+
+.question-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;text-align:center}
+.q-meta{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.q-num{font-size:.75rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px}
+.q-topic{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.topic-easy{background:rgba(76,175,80,.15);border:1px solid rgba(76,175,80,.4);color:#a5d6a7}
+.topic-medium{background:rgba(245,197,24,.15);border:1px solid rgba(245,197,24,.35);color:#fff59d}
+.topic-hard{background:rgba(255,152,0,.15);border:1px solid rgba(255,152,0,.4);color:#ffcc80}
+.topic-expert{background:rgba(244,67,54,.15);border:1px solid rgba(244,67,54,.4);color:#ef9a9a}
+.q-text{font-size:clamp(.95rem,3.5vw,1.2rem);line-height:1.55;color:#e8eaf6;font-weight:500}
+
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:380px){.options-grid{grid-template-columns:1fr}}
+.option-btn{display:flex;align-items:center;gap:12px;padding:13px 15px;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.12);border-radius:13px;color:#fff;font-size:.95rem;cursor:pointer;transition:all .2s;text-align:left;line-height:1.3;width:100%}
+.option-btn:hover:not(:disabled){background:rgba(245,197,24,.1);border-color:var(--gold);transform:translateY(-1px)}
+.option-btn:active:not(:disabled){transform:translateY(0)}
+.opt-lbl{display:flex;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;background:rgba(255,255,255,.1);border-radius:50%;font-weight:700;font-size:.85rem}
+.option-btn.correct{background:rgba(76,175,80,.2);border-color:var(--green);animation:bump .4s ease}
+.option-btn.correct .opt-lbl{background:var(--green)}
+.option-btn.wrong{background:rgba(244,67,54,.2);border-color:var(--red)}
+.option-btn.wrong .opt-lbl{background:var(--red)}
+.option-btn:disabled{cursor:default}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.025)}100%{transform:scale(1)}}
+
+.feedback-banner{display:none;padding:13px 18px;border-radius:13px;font-size:.95rem;font-weight:600;text-align:center;animation:slideUp .3s ease}
+.feedback-banner.show{display:block}
+.fb-ok{background:rgba(76,175,80,.18);border:1px solid var(--green);color:#a5d6a7}
+.fb-err{background:rgba(244,67,54,.18);border:1px solid var(--red);color:#ef9a9a}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.btn-next{width:100%;padding:14px;font-size:1rem;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border:none;border-radius:12px;cursor:pointer;transition:all .2s;display:none;box-shadow:0 4px 18px rgba(21,101,192,.4)}
+.btn-next.show{display:block}
+.btn-next:hover{transform:translateY(-2px)}
+
+/* ── LADDER ── */
+.ladder-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 14px}
+.ladder-wrap h3{font-size:.7rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:8px}
+.ladder-list{display:flex;flex-direction:column-reverse;gap:2px;max-height:220px;overflow-y:auto}
+.ladder-list::-webkit-scrollbar{width:3px}
+.ladder-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.l-item{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;border-radius:7px;font-size:.82rem;color:rgba(255,255,255,.38);transition:all .3s}
+.l-item.achieved{color:rgba(255,255,255,.65)}
+.l-item.safe-lvl{color:#64b5f6}
+.l-item.safe-lvl.achieved{color:#90caf9}
+.l-item.current{background:rgba(245,197,24,.18);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-weight:700;font-size:.9rem}
+.safe-tag{font-size:.65rem;color:#64b5f6;border:1px solid #64b5f6;border-radius:10px;padding:1px 6px;margin-left:6px}
+
+/* ── RESULT ── */
+.result-box{text-align:center;max-width:440px;width:100%}
+.r-icon{font-size:5rem;display:block;margin-bottom:18px}
+.r-title{font-size:clamp(1.8rem,6vw,2.6rem);font-weight:900;margin-bottom:10px}
+.r-title.win{background:linear-gradient(135deg,#f5c518,#ff9800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.r-title.lose{color:#ef9a9a}
+.r-prize{font-size:clamp(2rem,7vw,3rem);font-weight:900;color:var(--gold);margin-bottom:8px}
+.r-msg{color:rgba(255,255,255,.6);font-size:1rem;line-height:1.55;margin-bottom:30px}
+.btn-restart{padding:16px 40px;font-size:1.05rem;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#f5c518,#ff9800);color:#000;border:none;border-radius:12px;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(245,197,24,.4)}
+.btn-restart:hover{transform:translateY(-2px)}
+
+/* ── CONFETTI ── */
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:999}
+.cp{position:absolute;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ START ═══════════════ -->
+<div id="start-screen" class="screen active">
+  <div class="logo">
+    <span class="logo-icon">🧬</span>
+    <div class="logo-title">SHOW DO MILHÃO</div>
+    <div class="logo-sub">Bioquímica</div>
+  </div>
+  <div class="start-card">
+    <label for="pname">Qual é o seu nome?</label>
+    <input type="text" id="pname" placeholder="Digite seu nome..." maxlength="20" autocomplete="off">
+    <button class="btn-start" onclick="startGame()">🚀 VAMOS JOGAR!</button>
+    <div style="text-align:center;margin-top:24px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 110" width="160" style="border-radius:10px;">
+        <rect width="220" height="110" fill="#1a4f8a"/>
+        <text x="22" y="78" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="62" fill="#ffffff" letter-spacing="-2">UVA</text>
+        <circle cx="194" cy="58" r="22" fill="#f5c400"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ GAME ═══════════════ -->
+<div id="game-screen" class="screen">
+  <div class="game-layout">
+
+    <div class="game-header">
+      <div class="player-info">Jogador: <strong id="dname"></strong></div>
+      <div class="prize-header">
+        <div class="lbl">Jogando por</div>
+        <div class="amt" id="prize-for"></div>
+        <div class="safe-info" id="safe-info"></div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-num" id="q-num">Pergunta 1 de 13</span>
+        <span class="q-topic" id="q-topic"></span>
+      </div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+
+    <div class="options-grid" id="opts">
+      <button class="option-btn" onclick="pick(0)"><span class="opt-lbl">A</span><span id="o0"></span></button>
+      <button class="option-btn" onclick="pick(1)"><span class="opt-lbl">B</span><span id="o1"></span></button>
+      <button class="option-btn" onclick="pick(2)"><span class="opt-lbl">C</span><span id="o2"></span></button>
+      <button class="option-btn" onclick="pick(3)"><span class="opt-lbl">D</span><span id="o3"></span></button>
+    </div>
+
+    <div class="feedback-banner" id="fb"></div>
+    <button class="btn-next" id="btn-next" onclick="next()">PRÓXIMA PERGUNTA →</button>
+
+    <div class="ladder-wrap">
+      <h3>💰 Escada de Prêmios</h3>
+      <div class="ladder-list" id="ladder"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ RESULT ═══════════════ -->
+<div id="result-screen" class="screen">
+  <div class="result-box">
+    <span class="r-icon" id="r-icon">🏆</span>
+    <div class="r-title" id="r-title">PARABÉNS!</div>
+    <div class="r-prize" id="r-prize">R$ 1.000.000</div>
+    <div class="r-msg" id="r-msg"></div>
+    <button class="btn-restart" onclick="restart()">🔄 JOGAR NOVAMENTE</button>
+  </div>
+</div>
+
+<div id="confetti"></div>
+
+<script>
+// ──────────────── BANCO DE PERGUNTAS ────────────────
+const QUESTIONS = {
+  easy: [
+    { text:"Qual macronutriente é a principal fonte de energia do corpo humano?", opts:["Proteína","Lipídio","Carboidrato","Vitamina"], ok:2, topic:"Carboidratos" },
+    { text:"Os lipídios são popularmente conhecidos como:", opts:["Proteínas","Gorduras","Açúcares","Fibras"], ok:1, topic:"Lipídios" },
+    { text:"Qual alimento abaixo é mais rico em proteínas?", opts:["Arroz branco","Peito de frango","Banana","Batata doce"], ok:1, topic:"Proteínas" },
+    { text:"Qual vitamina é produzida pelo organismo quando a pele é exposta ao sol?", opts:["Vitamina A","Vitamina B12","Vitamina C","Vitamina D"], ok:3, topic:"Vitaminas" },
+    { text:"A vitamina C é encontrada em grandes quantidades em:", opts:["Carne vermelha","Laranja e limão","Leite e queijo","Pão e macarrão"], ok:1, topic:"Vitaminas" },
+    { text:"Qual é o nome do açúcar naturalmente presente no leite?", opts:["Glicose","Frutose","Sacarose","Lactose"], ok:3, topic:"Carboidratos" },
+    { text:"Qual destes alimentos é considerado fonte de gordura saudável?", opts:["Batata frita","Abacate","Refrigerante","Bala de goma"], ok:1, topic:"Lipídios" },
+    { text:"As proteínas são formadas pela união de:", opts:["Ácidos graxos","Aminoácidos","Monossacarídeos","Nucleotídeos"], ok:1, topic:"Proteínas" },
+  ],
+  medium: [
+    { text:"Qual é a principal função das proteínas no organismo?", opts:["Fornecer energia imediata","Construir e reparar tecidos","Armazenar vitaminas","Produzir calor corporal"], ok:1, topic:"Proteínas" },
+    { text:"Os carboidratos simples diferem dos complexos porque:", opts:["Têm mais fibras","São absorvidos mais rapidamente","Contêm mais vitaminas","Têm mais calorias por grama"], ok:1, topic:"Carboidratos" },
+    { text:"Qual vitamina é essencial para a coagulação sanguínea?", opts:["Vitamina A","Vitamina C","Vitamina K","Vitamina E"], ok:2, topic:"Vitaminas" },
+    { text:"Os ácidos graxos ômega-3 são classificados como lipídios:", opts:["Saturados","Trans","Insaturados","Hidrolisados"], ok:2, topic:"Lipídios" },
+    { text:"Qual mineral é fundamental para a saúde óssea e atua junto com a vitamina D?", opts:["Ferro","Cálcio","Sódio","Potássio"], ok:1, topic:"Vitaminas" },
+    { text:"O glicogênio (reserva de carboidratos do organismo) é armazenado principalmente em:", opts:["Coração e rins","Pulmões e baço","Fígado e músculos","Estômago e intestino"], ok:2, topic:"Carboidratos" },
+    { text:"A gordura trans é prejudicial à saúde principalmente porque:", opts:["Tem muitas calorias","Aumenta o LDL e reduz o HDL","É de origem vegetal","Tem baixo ponto de fusão"], ok:1, topic:"Lipídios" },
+    { text:"Qual vitamina age como antioxidante e protege as células contra radicais livres?", opts:["Vitamina B1","Vitamina D","Vitamina E","Vitamina K"], ok:2, topic:"Vitaminas" },
+  ],
+  hard: [
+    { text:"O aminoácido triptofano é precursor de qual neurotransmissor ligado ao bem-estar e humor?", opts:["Dopamina","Adrenalina","Serotonina","Acetilcolina"], ok:2, topic:"Proteínas" },
+    { text:"As vitaminas lipossolúveis são armazenadas principalmente em:", opts:["Rins e pulmões","Músculo esquelético","Fígado e tecido adiposo","Medula óssea"], ok:2, topic:"Vitaminas" },
+    { text:"Qual processo metabólico descreve a síntese de glicose a partir de substratos não-glicídicos?", opts:["Glicólise","Glicogenólise","Glicogênese","Gliconeogênese"], ok:3, topic:"Carboidratos" },
+    { text:"A doença conhecida como escorbuto é causada pela deficiência de:", opts:["Vitamina A","Vitamina C","Vitamina D","Vitamina K"], ok:1, topic:"Vitaminas" },
+    { text:"O índice glicêmico (IG) de um alimento mede:", opts:["A quantidade total de açúcar","A velocidade de elevação da glicose sanguínea","O valor calórico por porção","A quantidade de carboidratos simples"], ok:1, topic:"Carboidratos" },
+    { text:"Qual lipoproteína é chamada de 'colesterol bom' por transportar colesterol dos tecidos ao fígado?", opts:["LDL","VLDL","HDL","IDL"], ok:2, topic:"Lipídios" },
+    { text:"A vitamina A (retinol) é fundamental para qual função no organismo?", opts:["Síntese de colágeno","Visão e integridade epitelial","Coagulação sanguínea","Absorção de ferro"], ok:1, topic:"Vitaminas" },
+    { text:"Os fosfolipídios são componentes estruturais essenciais de:", opts:["Hormônios esteroides","Membranas celulares","Glicogênio hepático","Hemoglobina"], ok:1, topic:"Lipídios" },
+  ],
+  expert: [
+    { text:"Os triglicerídeos são formados pela união de uma molécula de glicerol com:", opts:["2 aminoácidos e 1 ácido graxo","3 ácidos graxos","2 monossacarídeos","1 colesterol e 2 fosfolipídios"], ok:1, topic:"Lipídios" },
+    { text:"A enzima que inicia a digestão do amido na cavidade bucal é:", opts:["Lipase pancreática","Pepsina","Amilase salivar","Tripsina"], ok:2, topic:"Carboidratos" },
+    { text:"O principal ácido graxo monoinsaturado encontrado no azeite de oliva é:", opts:["Ácido linoleico","Ácido oleico","Ácido palmítico","Ácido esteárico"], ok:1, topic:"Lipídios" },
+    { text:"A deficiência de vitamina B12 pode causar qual tipo de anemia?", opts:["Anemia ferropriva","Anemia falciforme","Anemia megaloblástica","Anemia hemolítica"], ok:2, topic:"Vitaminas" },
+    { text:"O processo de beta-oxidação, que ocorre nas mitocôndrias, corresponde à:", opts:["Síntese de ácidos graxos","Degradação de ácidos graxos para produção de ATP","Síntese de colesterol","Formação de triglicerídeos"], ok:1, topic:"Lipídios" },
+    { text:"Qual aminoácido condicionalmente essencial é o mais abundante no plasma e crucial para o sistema imune?", opts:["Leucina","Glutamina","Alanina","Serina"], ok:1, topic:"Proteínas" },
+    { text:"O valor biológico (VB) de uma proteína mede:", opts:["A quantidade de proteína por 100 g do alimento","A proporção de nitrogênio absorvido que é retido pelo organismo","A velocidade de digestão da proteína","O número de aminoácidos essenciais presentes"], ok:1, topic:"Proteínas" },
+  ],
+};
+
+// ──────────────── ESCADA DE PRÊMIOS ────────────────
+const LADDER = [
+  { label:"R$ 1.000",    value:1000,    safe:false },
+  { label:"R$ 2.000",    value:2000,    safe:false },
+  { label:"R$ 3.000",    value:3000,    safe:false },
+  { label:"R$ 5.000",    value:5000,    safe:false },
+  { label:"R$ 10.000",   value:10000,   safe:true  },
+  { label:"R$ 20.000",   value:20000,   safe:false },
+  { label:"R$ 30.000",   value:30000,   safe:false },
+  { label:"R$ 50.000",   value:50000,   safe:false },
+  { label:"R$ 100.000",  value:100000,  safe:false },
+  { label:"R$ 200.000",  value:200000,  safe:true  },
+  { label:"R$ 300.000",  value:300000,  safe:false },
+  { label:"R$ 500.000",  value:500000,  safe:false },
+  { label:"R$ 1.000.000",value:1000000, safe:false },
+];
+
+const DIFF_FOR_LEVEL = l => l<=3?"easy":l<=7?"medium":l<=10?"hard":"expert";
+const DIFF_CLASS = { easy:"topic-easy", medium:"topic-medium", hard:"topic-hard", expert:"topic-expert" };
+const DIFF_LABEL = { easy:"Fácil", medium:"Médio", hard:"Difícil", expert:"Expert" };
+const $ = id => document.getElementById(id);
+
+// ──────────────── ESTADO ────────────────
+let G = {};
+
+function resetState(name) {
+  G = {
+    name,
+    level: 0,           // índice atual em LADDER (0–12)
+    safePrize: 0,
+    used: { easy:[], medium:[], hard:[], expert:[] },
+    answered: false,
+    q: null,
+  };
+}
+
+// ──────────────── PERGUNTAR ────────────────
+function pickQ(diff) {
+  const pool = QUESTIONS[diff];
+  const available = pool.map((_,i)=>i).filter(i=>!G.used[diff].includes(i));
+  if (!available.length) G.used[diff] = [];
+  const fresh = pool.map((_,i)=>i).filter(i=>!G.used[diff].includes(i));
+  const idx = fresh[Math.floor(Math.random()*fresh.length)];
+  G.used[diff].push(idx);
+  return pool[idx];
+}
+
+// ──────────────── ESCADA ────────────────
+function buildLadder() {
+  const el = $("ladder");
+  el.innerHTML = "";
+  LADDER.forEach((p, i) => {
+    const d = document.createElement("div");
+    d.id = "li"+i;
+    d.className = "l-item" + (p.safe ? " safe-lvl" : "");
+    d.innerHTML = p.safe
+      ? `<span>${p.label}<span class="safe-tag">★ Seguro</span></span>`
+      : `<span>${p.label}</span>`;
+    el.appendChild(d);
+  });
+  refreshLadder();
+}
+
+function refreshLadder() {
+  LADDER.forEach((p, i) => {
+    const el = $("li"+i);
+    el.className = "l-item" + (p.safe ? " safe-lvl" : "");
+    if (i < G.level)  el.classList.add("achieved");
+    if (i === G.level) {
+      el.classList.add("current");
+      el.scrollIntoView({block:"nearest",behavior:"smooth"});
+    }
+  });
+
+  const cur = LADDER[G.level];
+  $("prize-for").textContent = cur ? cur.label : LADDER[12].label;
+  $("safe-info").textContent = G.safePrize > 0
+    ? `Garantido: R$ ${G.safePrize.toLocaleString("pt-BR")}`
+    : "Sem garantia ainda";
+}
+
+// ──────────────── CARREGAR PERGUNTA ────────────────
+function loadQ() {
+  const lv = G.level + 1;
+  const diff = DIFF_FOR_LEVEL(lv);
+  G.q = pickQ(diff);
+  G.answered = false;
+
+  $("q-num").textContent = `Pergunta ${lv} de 13`;
+  $("q-topic").textContent = `${G.q.topic} — ${DIFF_LABEL[diff]}`;
+  $("q-topic").className = "q-topic " + DIFF_CLASS[diff];
+  $("q-text").textContent = G.q.text;
+
+  ["A","B","C","D"].forEach((lbl, i) => {
+    const btn = $("opts").children[i];
+    btn.className = "option-btn";
+    btn.disabled = false;
+    btn.querySelector(".opt-lbl").textContent = lbl;
+    $("o"+i).textContent = G.q.opts[i];
+  });
+
+  $("fb").className = "feedback-banner";
+  $("btn-next").className = "btn-next";
+  refreshLadder();
+}
+
+// ──────────────── RESPONDER ────────────────
+function pick(idx) {
+  if (G.answered) return;
+  G.answered = true;
+
+  const btns = $("opts").children;
+  for (const b of btns) b.disabled = true;
+
+  const correct = idx === G.q.ok;
+  btns[idx].classList.add(correct ? "correct" : "wrong");
+  if (!correct) btns[G.q.ok].classList.add("correct");
+
+  const fb = $("fb");
+  if (correct) {
+    G.level++;
+    // atualizar prêmio seguro
+    for (let i = G.level - 1; i >= 0; i--) {
+      if (LADDER[i].safe) { G.safePrize = LADDER[i].value; break; }
+    }
+    fb.className = "feedback-banner show fb-ok";
+    fb.textContent = `✅ Correto! Você ganhou ${LADDER[G.level-1].label}`;
+
+    if (G.level >= LADDER.length) {
+      setTimeout(() => showResult(true), 1200);
+    } else {
+      refreshLadder();
+      $("btn-next").className = "btn-next show";
+    }
+  } else {
+    fb.className = "feedback-banner show fb-err";
+    fb.textContent = `❌ Errou! Resposta correta: ${G.q.opts[G.q.ok]}`;
+    setTimeout(() => showResult(false), 1900);
+  }
+}
+
+function next() { loadQ(); }
+
+// ──────────────── RESULTADO ────────────────
+function showResult(won) {
+  show("result-screen");
+  if (won) {
+    $("r-icon").textContent = "🏆";
+    $("r-title").className = "r-title win";
+    $("r-title").textContent = "PARABÉNS!";
+    $("r-prize").textContent = "R$ 1.000.000";
+    $("r-msg").textContent = `${G.name}, você é um verdadeiro expert em Bioquímica! Conquistou o PRÊMIO MÁXIMO!`;
+    confetti();
+  } else {
+    const safe = G.safePrize;
+    const safeStr = safe ? `R$ ${safe.toLocaleString("pt-BR")}` : "R$ 0";
+    $("r-icon").textContent = "😔";
+    $("r-title").className = "r-title lose";
+    $("r-title").textContent = "FIM DE JOGO";
+    $("r-prize").textContent = safeStr;
+    $("r-msg").textContent = `${G.name}, você leva ${safeStr} (prêmio garantido). Estude mais sobre bioquímica e tente de novo!`;
+  }
+}
+
+// ──────────────── FLUXO PRINCIPAL ────────────────
+function startGame() {
+  const name = $("pname").value.trim();
+  if (!name) {
+    $("pname").focus();
+    $("pname").style.borderColor = "#f44336";
+    setTimeout(() => $("pname").style.borderColor = "", 1000);
+    return;
+  }
+  resetState(name);
+  $("dname").textContent = name;
+  buildLadder();
+  show("game-screen");
+  loadQ();
+}
+
+function restart() {
+  $("pname").value = G.name;
+  show("start-screen");
+}
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+
+// ──────────────── CONFETTI ────────────────
+function confetti() {
+  const c = $("confetti");
+  c.innerHTML = "";
+  const cols = ["#f5c518","#ff9800","#4caf50","#2196f3","#e91e63","#9c27b0","#fff"];
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement("div");
+    p.className = "cp";
+    p.style.cssText = `left:${Math.random()*100}%;top:-20px;
+      background:${cols[Math.floor(Math.random()*cols.length)]};
+      width:${Math.random()*10+5}px;height:${Math.random()*10+5}px;
+      border-radius:${Math.random()>.5?"50%":"3px"};
+      animation-duration:${Math.random()*2+2}s;
+      animation-delay:${Math.random()*1.5}s;`;
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = "", 6000);
+}
+
+// Enter no campo de nome
+$("pname").addEventListener("keydown", e => { if (e.key === "Enter") startGame(); });
+</script>
+</body>
+</html>
